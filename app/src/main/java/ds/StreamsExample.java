@@ -1,9 +1,6 @@
 package ds;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class StreamsExample {
@@ -36,7 +33,7 @@ public class StreamsExample {
         result.append(list.stream().sorted().collect(Collectors.toList()));
 
         result.append("\n");
-        System.out.println(result.toString());
+        System.out.println(result);
         return result.toString();
     }
 
@@ -56,13 +53,33 @@ public class StreamsExample {
         result.append("\n").append("Oldest person: ");
         result.append(employees.stream().sorted(Comparator.comparing(Employee::getAge).reversed()).findFirst());
 
-        result.append("\n").append("Oldest person for each department: ");
+        result.append("\n").append("Distinct departments: ");
         result.append(employees.stream()
-                .sorted(Comparator.comparing(Employee::getAge).reversed())
-                .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting())));
+                .map((e) -> e.getDepartment())
+                .distinct()
+                .collect(Collectors.toList()));
+
+        result.append("\n").append("Average salary by department: ");
+        Map<String, Double> averageSalaryByDepartment = employees.stream()
+                .collect(
+                        Collectors.groupingBy(Employee::getDepartment,
+                        Collectors.averagingDouble(Employee::getSalary))
+                );
+        result.append(averageSalaryByDepartment);
+
+        System.out.println("Oldest person for each department:");
+        employees.stream()
+        .sorted(Comparator.comparing(Employee::getAge).reversed())
+        .collect(Collectors.groupingBy(
+                Employee::getDepartment,
+                Collectors.maxBy(Comparator.comparing(Employee::getAge))))
+        .forEach((department, employee) -> {
+            System.out.println(department);
+            System.out.println(employee.map(value -> value.getName() + " (" + value.getAge() + ")").orElse(""));
+        });
 
         result.append("\n");
-        System.out.println(result.toString());
+        System.out.println(result);
         return result.toString();
     }
 }
